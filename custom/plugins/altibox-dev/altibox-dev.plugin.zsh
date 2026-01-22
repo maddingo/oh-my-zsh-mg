@@ -24,8 +24,9 @@ function docker_login() {
 function reload_altibox_dev_plugin() {
 	if [[ -r .altiboxrc ]]; then
 		source .altiboxrc
+		load_env
+
 	fi
-	load_env
 }
 
 function load_env() {
