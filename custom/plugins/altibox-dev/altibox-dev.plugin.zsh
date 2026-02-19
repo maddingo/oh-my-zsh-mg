@@ -23,29 +23,38 @@ function docker_login() {
 
 function reload_altibox_dev_plugin() {
 	if [[ -r .altiboxrc ]]; then
-		source .altiboxrc
-		load_env
-
+		if ! source .altiboxrc; then
+			echo "[altibox-dev] Error: Failed to source .altiboxrc" >&2
+		fi
+		if ! load_env; then
+			echo "[altibox-dev] Error: load_env failed" >&2
+		fi
 	fi
 }
 
 function load_env() {
 	# check if VPN connection is up
 	if has_vpn; then
-		set_vault_token
-		oc_login
-		docker_login
+		if ! set_vault_token; then
+			echo "[altibox-dev] Error: set_vault_token failed" >&2
+		fi
+		if ! oc_login; then
+			echo "[altibox-dev] Error: oc_login failed" >&2
+		fi
+		if ! docker_login; then
+			echo "[altibox-dev] Error: docker_login failed" >&2
+		fi
 	else
 		echo "VPN is down"
 	fi
 }
 
 function vpn_up() {
-	nmcli connection up Altibox\ VPN
+	nmcli connection up Altibox\ VPN &> /dev/null
 }
 
 function vpn_down() {
-	nmcli connection down Altibox\ VPN
+	nmcli connection down Altibox\ VPN &> /dev/null
 }
 
 load_env
