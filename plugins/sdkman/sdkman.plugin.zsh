@@ -1,3 +1,4 @@
+# This crestes sdkman aliases for JDKs installed with the package manager
 export SDKMAN_DIR=~/.sdkman
 
 install_local_sdk() {
