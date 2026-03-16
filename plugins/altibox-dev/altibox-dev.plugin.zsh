@@ -6,13 +6,14 @@ function has_vpn() {
 }
 
 function set_vault_token() {
+	# requires `vault login`
 	export VAULT_TOKEN="$(vault token lookup -format=json | jq -r .data.id)"
 }
 
 function oc_login() {
 	local IPA_PASSWORD=$(cat $HOME/.ipa-password)
 
-	~/bin/oc login --server=${OCP_SERVER} --username=$USER --password="${IPA_PASSWORD}" >/dev/null 2>&1
+	~/bin/oc login --insecure-skip-tls-verify --server=${OCP_SERVER} --username=$USER --password="${IPA_PASSWORD}" >/dev/null 2>&1
 }
 
 function docker_login() {
