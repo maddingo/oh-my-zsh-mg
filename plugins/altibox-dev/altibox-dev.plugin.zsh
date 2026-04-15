@@ -6,18 +6,29 @@ function has_vpn() {
 }
 
 function set_vault_token() {
-	# requires `vault login`
-	export VAULT_TOKEN="$(vault token lookup -format=json | jq -r .data.id)"
+	# requires `vault login` which create a ~/.vault-token file
+	#export VAULT_TOKEN="$(vault token lookup -format=json | jq -r .data.id)"
+	if [ -f ~/.vault-token ] ; then
+		export VAULT_TOKEN="$(cat ~/.vault-token)"
+	else
+		echo "Run vault login"
+		return 2
+	fi
 }
 
 function oc_login() {
 	local IPA_PASSWORD=$(cat $HOME/.ipa-password)
-
-	~/bin/oc login --insecure-skip-tls-verify --server=${OCP_SERVER} --username=$USER --password="${IPA_PASSWORD}" >/dev/null 2>&1
+	if [ ! -x ~/bin/oc ] ; then
+		echo "oc (OpenShift Client) is not installed in ~/bin/oc"
+		return 2
+	else
+		~/bin/oc login --insecure-skip-tls-verify --server=${OCP_SERVER} --username=$USER --password="${IPA_PASSWORD}" >/dev/null 2>&1
+	fi
 }
 
 function docker_login() {
-	local IPA_PASSWORD=$(cat $HOME/.ipa-password)
+	#local IPA_PASSWORD=$(cat $HOME/.ipa-password)
+	local IPA_PASSWORD=$(op item get "Altibox IPA" --reveal --fields new_password)
 	docker login -u $USER -p "${IPA_PASSWORD}" nexus.altibox.net:8086 >/dev/null 2>&1
 	docker login -u $USER -p "${IPA_PASSWORD}" nexus.altibox.net:8085 >/dev/null 2>&1
 }
